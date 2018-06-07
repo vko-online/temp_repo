@@ -103,7 +103,7 @@ export default {
   async importContacts (_, args, ctx) {
     const user = await getAuthenticatedUser(ctx)
 
-    // check if phone exists in db, if yes, attach user ref
+    // todo: check if phone exists in db, if yes, attach user ref
     const contactPromises = map(args.contacts, async ct => Contact.create({
       name: ct.name,
       phone: ct.phone

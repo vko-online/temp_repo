@@ -84,6 +84,15 @@ export const schema = [
     groups: [Group] # grouped user contacts from phone addressbook
   }
 
+  type Invitation {
+    id: String!
+    have_seen: Boolean
+    created_at: Date
+    updated_at: Date
+    decision: String
+    user: User
+  }
+
   # Activity model - represents core 
   type Activity {
     id: String! # activity id
@@ -97,18 +106,12 @@ export const schema = [
     end_date: Date # activity ending date, can be same date as start_date
     created_by: User # owner of activity
 
-    min_payment: Int # minimal required amount  of money for activity
-    min_people: Int # minimal required amount of people
+    additional_json: String # additional info in json format
     require_people_decision: Boolean # activity requires decision
 
     is_archived: Boolean # editable/votable or not
-    is_blocked: Boolean # deleted/blocked by host/app
-
-    people_invited: [User] # users that are invited to this activity by creator
-    people_seen_by: [User] # all users in people_invited list that have seen/opened the activity
-    people_going: [User] # people that marked themselves as going, receives all notifications
-    people_maybe_going: [User] # same as people_going
-    people_not_going: [User] # people who declined, and doesn't receive notifications
+    is_public: Boolean
+    invitations: [Invitation]
     messages: [Message] # discussion of activity
   }
 

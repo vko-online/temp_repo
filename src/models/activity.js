@@ -15,39 +15,14 @@ const activitySchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
-  min_payment: Number,
-  min_people: Number,
+  additional_json: String,
   require_people_decision: Boolean,
   is_archived: Boolean,
-  is_blocked: Boolean,
-  people_invited: {
+  is_public: Boolean,
+  invitations: {
     type: [{
       type: Schema.ObjectId,
-      ref: 'User'
-    }]
-  },
-  people_seen_by: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User'
-    }]
-  },
-  people_going: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User'
-    }]
-  },
-  people_maybe_going: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User'
-    }]
-  },
-  people_not_going: {
-    type: [{
-      type: Schema.ObjectId,
-      ref: 'User'
+      ref: 'Invitation'
     }]
   },
   messages: {
