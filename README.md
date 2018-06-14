@@ -16,7 +16,7 @@ Make sure you have mongo service running
 
 Install packages
 
-    ❯ yarn start
+    ❯ yarn
 
 Start server
 
