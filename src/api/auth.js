@@ -5,3 +5,7 @@ export async function getAuthenticatedUser (ctx) {
   if (!user) return HttpError.unauthorized()
   return user
 }
+
+export async function getAuthenticatedUserSafe (ctx) {
+  return ctx.user
+}

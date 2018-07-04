@@ -72,14 +72,14 @@ export default {
 
   async createGroup (_, args, ctx) {
     const user = await getAuthenticatedUser(ctx)
-    const contacts = await Contact.find({
+    const users = await User.find({
       _id: {
-        $in: args.group.contactIds
+        $in: args.group.userIds
       }
     })
     const newGroup = await Group.create({
       name: args.group.name,
-      contacts: contacts
+      users
     })
     await user.update({
       $push: {
@@ -110,9 +110,20 @@ export default {
     }))
 
     const contacts = await Promise.all(contactPromises)
+    const contactPhones = args.contacts.map(ct => ct.phone).filter(ct => ct !== user.phone)
+    const userFriends = await User.find({
+      phone: {
+        $in: contactPhones
+      }
+    })
+    const friends = userFriends.map(usr => ({
+      nickname: args.contacts.find(ct => ct.phone === usr.phone).name,
+      user: usr
+    }))
 
     await user.update({
-      contacts
+      contacts,
+      friends
     })
 
     return contacts
@@ -123,7 +134,7 @@ export default {
       _id: {
         $in: user.groups
       }
-    }).populate('contacts')
+    }).populate('users')
   },
   async contacts (user, args, ctx) {
     return Contact.find({
@@ -132,6 +143,14 @@ export default {
       }
     })
   },
+  async friends (user, args, ctx) {
+    const populatedUser = await User.populate(user, {
+      path: 'friends.user',
+      model: 'User'
+    })
+
+    return populatedUser.friends
+  },
   async avatar_url (user, args, ctx) {
     return (user.avatar && user.avatar.filename) ? getFileUrl(user.avatar.filename) : ''
   },
@@ -139,7 +158,7 @@ export default {
     const {
       avatar,
       name,
-      dob
+      about
     } = updateUserInput.user
     const user = await getAuthenticatedUser(ctx)
 
@@ -147,8 +166,8 @@ export default {
       user.name = name
     }
 
-    if (dob) {
-      user.dob = dob
+    if (about) {
+      user.about = about
     }
 
     if (avatar) {

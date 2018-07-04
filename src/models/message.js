@@ -6,7 +6,12 @@ const messageSchema = new Schema({
     ref: 'User'
   },
   created_at: Date,
-  content: String
+  content: String,
+  content_type: String,
+  activity: {
+    type: Schema.ObjectId,
+    ref: 'Activity'
+  }
 })
 
 export default mongoose.model('Message', messageSchema)

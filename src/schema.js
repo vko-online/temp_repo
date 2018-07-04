@@ -15,6 +15,35 @@ export const schema = [
     path: String!
   }
 
+  # input for relay cursor connections
+  input ConnectionInput {
+    first: Int
+    after: String
+    last: Int
+    before: String
+  }
+
+  type MessageConnection {
+    edges: [MessageEdge]
+    pageInfo: PageInfo!
+  }
+
+  type MessageEdge {
+    cursor: String!
+    node: Message!
+  }
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+  }
+
+  input CreateMessageInput {
+    activityId: String!
+    content: String!
+    content_type: String
+  }
+
   # input for signing in users
   input SigninUserInput {
     phone: String!
@@ -29,8 +58,19 @@ export const schema = [
 
   input CreateGroupInput {
     name: String!
-    contactIds: [String]
+    userIds: [String]
   }
+
+  input CreateActivityInput {
+    title: String!
+    description: String
+    start_date: Date
+    end_date: Date
+    additional_json: String
+    require_people_decision: Boolean
+    is_public: Boolean
+  }
+
 
   input CreateContactInput {
     name: String!
@@ -41,12 +81,24 @@ export const schema = [
   input UpdateUserInput {
     avatar: File
     name: String
-    dob: Date
+    about: String
   }
 
   # input for removing user image
   input RemoveUserImageInput {
     image: String! # image id
+  }
+
+  input ActivityFilterInput {
+    dates: [String]
+    text: String
+    archived: Boolean
+  }
+
+  input CreateDecisionInput {
+    invitationId: String!
+    activityId: String!
+    answer: String
   }
 
 
@@ -60,13 +112,18 @@ export const schema = [
   type Group {
     id: String!
     name: String!
-    contacts: [Contact]
+    users: [User]
   }
 
   type Image {
     filename: String
     width: Int
     height: Int
+  }
+
+  type Friend {
+    nickname: String
+    user: User
   }
 
   # a user -- keep type really simple for now
@@ -76,12 +133,16 @@ export const schema = [
     avatar: Image # image file
     avatar_url: String # full path to image
     name: String
-    dob: Date # date of birth
+    about: String # user private status
+    badgeCount: Int
+    registrationId: String
 
     jwt: String # json web token for access
 
     contacts: [Contact] # user contacts from phone addressbook
     groups: [Group] # grouped user contacts from phone addressbook
+
+    friends: [Friend]
   }
 
   type Invitation {
@@ -93,10 +154,16 @@ export const schema = [
     user: User
   }
 
+  type Geolocation {
+    type: String
+    coordinates: [Float]
+  }
+
   # Activity model - represents core 
   type Activity {
     id: String! # activity id
     title: String # title of activity
+    color: String
     image: Image # optional image
     image_url: String
     description: String # longer description text
@@ -109,17 +176,22 @@ export const schema = [
     additional_json: String # additional info in json format
     require_people_decision: Boolean # activity requires decision
 
+    location: String
+    geolocation: Geolocation
+
     is_archived: Boolean # editable/votable or not
     is_public: Boolean
     invitations: [Invitation]
-    messages: [Message] # discussion of activity
+    messages(messageConnection: ConnectionInput): MessageConnection
   }
 
   type Message {
     id: String! # common id
+    activity: Activity
     created_by: User # owner of message
     created_at: Date # created date of message
     content: String # message text
+    content_type: String # message type
   }
 
   # query for types
@@ -131,7 +203,7 @@ export const schema = [
     currentUser: User
 
     # Return activities with text filter
-    activities(text: String) : [Activity]
+    activities(filter: ActivityFilterInput) : [Activity]
 
     # Return single activity
     activity(id: String!): Activity
@@ -148,11 +220,18 @@ export const schema = [
     deleteGroup(id: String!): Group # delete group by id
 
     importContacts(contacts: [CreateContactInput]): [Contact] # import contact, supports batch
+
+    createDecision(decision: CreateDecisionInput!): Activity
+
+    createMessage(message: CreateMessageInput!): Message
+
+    deleteActivity(id: String!): Activity
+    toggleArchiveActivity(id: String!): Activity
   }
 
   type Subscription {
-    userAdded: User
     activityAdded: Activity
+    messageAdded(activityIdsIds: [String]): Message
   }
 
   schema {

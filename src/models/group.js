@@ -2,10 +2,10 @@ import mongoose, { Schema } from 'mongoose'
 
 const groupSchema = new Schema({
   name: String,
-  contacts: {
+  users: {
     type: [{
       type: Schema.ObjectId,
-      ref: 'Contact'
+      ref: 'User'
     }]
   }
 })

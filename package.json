@@ -27,6 +27,7 @@
     "lodash": "^4.17.5",
     "mime-types": "^2.1.18",
     "mongoose": "^5.0.15",
+    "natural-brain": "^0.3.2",
     "node-fetch": "^2.1.2",
     "request": "^2.87.0",
     "subscriptions-transport-ws": "^0.9.8",

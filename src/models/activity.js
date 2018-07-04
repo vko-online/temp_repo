@@ -7,6 +7,7 @@ const activitySchema = new Schema({
     width: Number,
     height: Number
   },
+  color: String,
   description: String,
   created_at: Date,
   start_date: Date,
@@ -15,8 +16,16 @@ const activitySchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
+  location: String,
+  geolocation: {
+    type: {
+      type: String
+    },
+    coordinates: [Number]
+  },
   additional_json: String,
   require_people_decision: Boolean,
+  is_deleted: Boolean,
   is_archived: Boolean,
   is_public: Boolean,
   invitations: {
@@ -32,5 +41,24 @@ const activitySchema = new Schema({
     }]
   }
 })
+
+activitySchema.methods.participants = async function (cb) {
+  const invitations = await this.model('Invitation').find({
+    _id: {
+      $in: this.invitations
+    }
+  })
+
+  const activeInvitations = invitations.filter(inv => ['going', 'maybe'].includes(inv.decision))
+  const userIds = activeInvitations.map(v => v.user)
+  const users = await this.model('User').find({
+    _id: {
+      $in: userIds
+    }
+  })
+  return cb(null, users)
+}
+
+activitySchema.index({ 'geolocation': '2dsphere' })
 
 export default mongoose.model('Activity', activitySchema)

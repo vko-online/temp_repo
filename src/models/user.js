@@ -9,12 +9,23 @@ const userSchema = new Schema({
     width: Number,
     height: Number
   },
-  dob: Date,
+  about: String,
   version: Number,
+  badgeCount: Number,
+  registrationId: String,
   groups: {
     type: [{
       type: Schema.ObjectId,
       ref: 'Group'
+    }]
+  },
+  friends: {
+    type: [{
+      nickname: String,
+      user: {
+        type: Schema.ObjectId,
+        ref: 'User'
+      }
     }]
   },
   contacts: {

@@ -19,6 +19,7 @@ import { userLoader } from './batch'
 
 const GRAPHQL_PORT = 8080
 const GRAPHQL_PATH = '/graphql'
+const GRAPHQL_EXPLORER_PATH = '/graphiql'
 const SUBSCRIPTIONS_PATH = '/subscriptions'
 
 Error.stackTraceLimit = Infinity
@@ -30,7 +31,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 // let Mongoose to use the global promise library
 mongoose.Promise = global.Promise
-
+mongoose.set('debug', true)
 mongoose.connect(MONGODB_URL, (err) => {
   if (err) throw err
 
@@ -40,7 +41,8 @@ mongoose.connect(MONGODB_URL, (err) => {
   // bind connection to error event (to get notification of connection errors)
   connection.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
-  if (SEED) {
+  const seed = SEED === 'true' || false
+  if (seed) {
     connection.db.dropDatabase()
     require('./seed')
   }
@@ -84,6 +86,9 @@ graphQLServer.listen(GRAPHQL_PORT, () => {
   )
   console.log(
     `GraphQL Subscriptions are now running on ws://localhost:${GRAPHQL_PORT}${SUBSCRIPTIONS_PATH}`
+  )
+  console.log(
+    `GraphQL Explorer is now running on http://localhost:${GRAPHQL_PORT}${GRAPHQL_EXPLORER_PATH}`
   )
 })
 

@@ -79,6 +79,7 @@ export const uploadFile = (fileUrl, type) =>
       }
       im.identify(['-format', '%wx%h', filePath], (err, output) => {
         if (err) reject(err)
+        console.log('output', output)
         const parts = output.split('x')
         result.width = Number(parts[0])
         result.height = Number(parts[1])
